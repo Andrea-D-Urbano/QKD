@@ -1,0 +1,11 @@
+# Ignore the .env file
+.env
+
+# Ignore all files in the data folder but keep the folder itself
+data/*
+!data/.gitkeep
+
+# Ignore all files in the img folder but keep the folder itself
+img/*
+!img/.gitkeep
+

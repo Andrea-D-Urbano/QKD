@@ -1,0 +1,1 @@
+Make sure to add a .env file with the API key: IBMQ_API_TOKEN.
