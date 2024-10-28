@@ -11,3 +11,6 @@ img/*
 
 # Ignore all __pycache__
 **/__pycache__/
+
+# Ignore .vscode folder
+.vscode/

@@ -1,3 +1,9 @@
-qiskit
-qiskit-aer
-numpy
+qiskit==1.2.4
+qiskit-aer==0.15.1
+qiskit-ibm-runtime==0.31.0
+numpy==2.1.2
+python-dotenv==1.0.1
+matplotlib==3.9.2
+pylatexenc==2.10
+PyYAML==6.0.2
+PyQt5==5.15.11

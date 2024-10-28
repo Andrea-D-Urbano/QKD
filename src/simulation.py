@@ -11,6 +11,7 @@ from qiskit_ibm_runtime.fake_provider import FakeSherbrooke
 from qiskit_ibm_runtime import QiskitRuntimeService
 from qiskit.visualization import circuit_drawer
 import matplotlib.pyplot as plt
+from math import ceil
 import random
 from dotenv import load_dotenv
 import os
@@ -155,7 +156,7 @@ def run_simulation(
 
         list_count = []
         for progress, transpiled_qc in enumerate(transpiled_circuits):
-            if progress % (len(transpiled_circuits) // 30) == 0:
+            if progress % (ceil(len(transpiled_circuits) / 30)) == 0:
                 print(
                     f"{100*progress/len(transpiled_circuits):.2f}% completed: {progress} circuits run over {len(transpiled_circuits)}."
                 )
