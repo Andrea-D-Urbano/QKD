@@ -6,7 +6,7 @@ import yaml
 
 
 def main():
-    # inizialize parameters (read from config file?)
+    # inizialize parameters (read from config file)
     with open("config/sim_config.yaml", "r") as file:
         config = yaml.safe_load(file)
 

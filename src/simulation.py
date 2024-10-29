@@ -18,23 +18,33 @@ import os
 import pickle
 
 
-def generate_circuits(lengths, runs, master_chain, protocol):
+def generate_circuits(lengths, runs, master_chain, protocol, QPU="ibm_sherbrooke"):
 
     max_circuit_len = len(master_chain)
-    assert all(
-        l <= max_circuit_len - 1 for l in lengths
-    ), f"max len must be at most {max_circuit_len-1}"
+    if protocol != "Id-BB84":
+        assert all(
+            l <= max_circuit_len - 1 for l in lengths
+        ), f"max len must be at most {max_circuit_len-1}"
 
     # (length, alice_basis, bob_basis, alice_bit, bob_bit, virtual_qubit_measured, classic_bit , circuit_index)
     data = []
     circuits = []
 
     qr = QuantumRegister(len(master_chain))
+    if protocol == "Id-BB84":
+        if QPU == "ibm_sherbrooke":
+            # use all device
+            qr_idBB84 = QuantumRegister(127)
+        else:
+            raise Exception("QPU unknown.")
     circuit_idx = 0
 
     for length in lengths:
         # cr = ClassicalRegister(len(master_chain) // length)
-        qc = QuantumCircuit(qr)
+        if protocol == "Id-BB84":
+            qc = QuantumCircuit(qr_idBB84)
+        else:
+            qc = QuantumCircuit(qr)
         current_qb = 0
         cl_bit = 0
 
@@ -47,13 +57,10 @@ def generate_circuits(lengths, runs, master_chain, protocol):
 
                 alice_bit = random.choice([0, 1])
 
-                if alice_basis == "Z":
-                    if alice_bit == 1:
-                        qc.x(current_qb)  # Prepare |1⟩ in Z basis
-                else:
-                    qc.h(current_qb)  # Prepare |+⟩
-                    if alice_bit == 1:
-                        qc.x(current_qb)  # Apply X to get |-⟩ if bit is 1
+                if alice_bit == 1:
+                    qc.x(current_qb)  # Prepare |1⟩ in Z basis
+                if alice_basis == "X":
+                    qc.h(current_qb)  # Prepare |+⟩ or |-⟩
 
                 for qb in range(current_qb, current_qb + length):
                     qc.swap(qb, qb + 1)
@@ -61,6 +68,19 @@ def generate_circuits(lengths, runs, master_chain, protocol):
 
                 if bob_basis == "X":
                     qc.h(current_qb)  # Apply H-gate if Bob is measuring in the X basis
+
+                data.append(
+                    [
+                        length,
+                        alice_basis,
+                        bob_basis,
+                        alice_bit,
+                        None,
+                        current_qb,
+                        cl_bit,
+                        circuit_idx,
+                    ]
+                )
 
             elif protocol == "BBM92":
 
@@ -82,34 +102,78 @@ def generate_circuits(lengths, runs, master_chain, protocol):
                 if bob_basis == "X":
                     qc.h(current_qb)
 
+                data.append(
+                    [
+                        length,
+                        alice_basis,
+                        bob_basis,
+                        None,
+                        None,
+                        current_qb,
+                        cl_bit,
+                        circuit_idx,
+                    ]
+                )
+
+            elif protocol == "Id-BB84":
+
+                alice_bit = random.choice([0, 1])
+
+                if alice_bit == 1:
+                    qc.x(current_qb)  # Prepare |1⟩ in Z basis
+                if alice_basis == "X":
+                    qc.h(current_qb)  # Prepare |+⟩ or |-⟩
+
+                # vary depth
+                for _ in range(length):
+                    qc.id(current_qb)
+
+                if bob_basis == "X":
+                    qc.h(current_qb)  # Apply H-gate if Bob is measuring in the X basis
+
+                data.append(
+                    [
+                        length,
+                        alice_basis,
+                        bob_basis,
+                        alice_bit,
+                        None,
+                        current_qb,
+                        cl_bit,
+                        circuit_idx,
+                    ]
+                )
+
             else:
                 raise Exception("Protocol unknown.")
 
-            data.append(
-                [
-                    length,
-                    alice_basis,
-                    bob_basis,
-                    None,
-                    None,
-                    current_qb,
-                    cl_bit,
-                    circuit_idx,
-                ]
-            )
-
-            # if a new chain would overflow the circuit, reset
-            if current_qb + length + 1 > max_circuit_len - 1:
-                current_qb = 0
-                cl_bit = 0
-                circuit_idx += 1
-                qc.measure_all()
-                circuits.append(qc)
-                qc = QuantumCircuit(qr)
+            if protocol != "Id-BB84":
+                # if a new chain would overflow the circuit, reset
+                if current_qb + length + 1 > max_circuit_len - 1:
+                    current_qb = 0
+                    cl_bit = 0
+                    circuit_idx += 1
+                    qc.measure_all()
+                    circuits.append(qc)
+                    qc = QuantumCircuit(qr)
+                else:
+                    current_qb += 1
+                    cl_bit += 1
             else:
                 current_qb += 1
                 cl_bit += 1
+                if QPU == "ibm_sherbrooke":
+                    if current_qb >= 127:
+                        current_qb = 0
+                        cl_bit = 0
+                        circuit_idx += 1
+                        qc.measure_all()
+                        circuits.append(qc)
+                        qc = QuantumCircuit(qr_idBB84)
+                else:
+                    raise Exception("QPU unknown.")
 
+        # if there is still a circuit not written
         if len(circuits) != data[-1][-1] + 1:
             circuit_idx += 1
             qc.measure_all()
@@ -126,7 +190,11 @@ def run_simulation(
     circuits, master_chain, device=False, QPU="ibm_sherbrooke", draw=False
 ):
 
-    custom_layout = Layout.from_intlist(master_chain, circuits[0].qregs[0])
+    if circuits[0].num_qubits == len(master_chain):
+        custom_layout = Layout.from_intlist(master_chain, circuits[0].qregs[0])
+    else:
+        # Id-BB84
+        custom_layout = None
 
     # Use Sampler for simulation
     if not device:

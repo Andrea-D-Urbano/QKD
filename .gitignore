@@ -14,3 +14,6 @@ img/*
 
 # Ignore .vscode folder
 .vscode/
+
+#Ignore .venv folder
+.venv/

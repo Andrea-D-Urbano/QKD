@@ -16,7 +16,7 @@ def update_data(data, counts):
         ) = dat
         bob_bit = int(list(counts[circuit_idx])[0][::-1][virtual_qb])
         data[idx][4] = bob_bit
-        if not alice_bit:
+        if alice_bit == None:
             alice_bit = int(list(counts[circuit_idx])[0][::-1][virtual_qb - length])
             data[idx][3] = alice_bit
 
