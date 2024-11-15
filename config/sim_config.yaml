@@ -1,9 +1,9 @@
 # Configuration file for simulation
 simulation:
-  protocol: "Id-BB84"        # "BB84", "BBM92" or "Id-BB84"
+  protocol: "BB84"        # "BB84", "BBM92" or "Id-BB84"
   run_sim: True           # run simulation or not
   device: False           # use real device or not
   QPU: "ibm_sherbrooke"   # IBMQ device
-  lengths: [1, 100, 300, 600, 1000]   # list of chain lengths (distance between Alice and Bob) [15, 20, 30, 40, 50, 70, 100]
-  runs: 300               # protocol runs per each length
-  draw: False             # whether to draw or not
+  lengths: [10, 15, 20]   # list of chain lengths (distance between Alice and Bob) [15, 20, 30, 40, 50, 70, 100]
+  runs: 50                # protocol runs per each length
+  draw: False             # whether to draw circuits during simulation or not (can be slow)

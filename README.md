@@ -10,6 +10,7 @@ This repository contains Python scripts for simulating Quantum Key Distribution 
 - **Circuit Parallelization**: Runs multiple QKD circuits (QKD runs) packed within a single execution to optimize runtime and reduce resource consumption on real quantum hardware.
 - **Data Storage**: Saves raw and processed data to `/data` and generated images/plots to `/img`.
 - **Configurable**: Custom simulation settings can be specified in `/config/sim_config.yaml`.
+- **Image generation**: generate virtual and transpiled circuit figures, as well as backend topology highlighting the "master chain" (for this purpose use the script `plot_master_chain.py`). 
 
 ## Setup Instructions
 
@@ -29,8 +30,9 @@ This repository contains Python scripts for simulating Quantum Key Distribution 
 3. **Configuration**:
    - Customize simulation parameters in `/config/sim_config.yaml` as needed.
 
-4. **Note**:
+4. **Notes**:
    - For simulations involving deep circuits, avoid generating circuit images due to excessive processing time and poor image quality.
+   - Use script `plot_master_chain.py` to generate the image of backend topology highlighting the "master chain". Be sure to have `graphviz` installed.
 
 ## Directory Structure
 
@@ -41,7 +43,7 @@ This repository contains Python scripts for simulating Quantum Key Distribution 
 
 ## Usage
 
-After setting up the environment and configurations, run `/src/main.py`.
+After setting up the environment and configurations, run `/src/main.py`. To generate the image of backend topology highlighting the "master chain" use the script `plot_master_chain.py`.
 
 ## License
 
