@@ -1,7 +1,7 @@
 # Configuration file for simulation
 simulation:
   protocol: "BB84"        # "BB84", "BBM92" or "Id-BB84"
-  run_sim: True           # run simulation or not
+  run_sim: False           # run simulation or not
   device: False           # use real device or not
   QPU: "ibm_sherbrooke"   # IBMQ device
   lengths: [10, 15, 20]   # list of chain lengths (distance between Alice and Bob) [15, 20, 30, 40, 50, 70, 100]

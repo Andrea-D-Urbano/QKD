@@ -7,3 +7,5 @@ matplotlib==3.9.2
 pylatexenc==2.10
 PyYAML==6.0.2
 PyQt5==5.15.11
+pandas==2.2.3
+scipy==1.14.1

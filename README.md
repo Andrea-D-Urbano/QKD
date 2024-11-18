@@ -43,7 +43,7 @@ This repository contains Python scripts for simulating Quantum Key Distribution 
 
 ## Usage
 
-After setting up the environment and configurations, run `/src/main.py`. To generate the image of backend topology highlighting the "master chain" use the script `plot_master_chain.py`.
+After setting up the environment and configurations, run `/src/main.py`. To generate the image of backend topology highlighting the "master chain" use the script `plot_master_chain.py`. To generate plots use `plot_results.py`.
 
 ## License
 

@@ -1,5 +1,5 @@
 from pack_chains import master_chains
-from analysis import update_data, process_data
+from analysis import update_data, process_data, process_data_pandas
 from simulation import generate_circuits, run_simulation
 import pickle
 import yaml
@@ -49,7 +49,9 @@ def main():
 
     data = update_data(data, counts)
 
-    process_data(data)
+    processed_data = process_data_pandas(data)
+    with open("data/processed_data.pkl", "wb") as file:
+        pickle.dump(processed_data, file)
 
 
 if __name__ == "__main__":
