@@ -241,7 +241,7 @@ def run_simulation(
                     f"{100*progress/num_circuits:.2f}% completed: {progress} circuits run over {num_circuits}."
                 )
                 # force garbage collection
-                gc.collect
+                gc.collect()
             result = simulator.run(transpiled_qc, shots=1).result()
             counts = result.get_counts()
             list_count.append(counts)
