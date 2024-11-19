@@ -16,6 +16,7 @@ import random
 from dotenv import load_dotenv
 import os
 import pickle
+import gc
 
 
 def generate_circuits(lengths, runs, master_chain, protocol, QPU="ibm_sherbrooke"):
@@ -186,6 +187,16 @@ def generate_circuits(lengths, runs, master_chain, protocol, QPU="ibm_sherbrooke
     return data, circuits
 
 
+def circuit_generator(circuits, backend, custom_layout):
+    for circ in circuits:
+        yield transpile(
+            circ,
+            backend=backend,
+            initial_layout=custom_layout,
+            optimization_level=0,
+        )
+
+
 def run_simulation(
     circuits, master_chain, device=False, QPU="ibm_sherbrooke", draw=False
 ):
@@ -196,25 +207,23 @@ def run_simulation(
         # Id-BB84
         custom_layout = None
 
+    if draw:
+        circuit_drawer(circuits[0], output="mpl", fold=150).savefig("img/circuit.png")
+        circuit_drawer(
+            transpile(
+                circuits[0],
+                backend=backend,
+                initial_layout=custom_layout,
+                optimization_level=0,
+            ),
+            output="mpl",
+            fold=150,
+        ).savefig("img/transpiled_circuit.png")
+
     # Use Sampler for simulation
     if not device:
         # define simulator
         backend = FakeSherbrooke()
-        # Transpile circuits for the simulator
-        transpiled_circuits = transpile(
-            circuits,
-            backend=backend,
-            initial_layout=custom_layout,
-            optimization_level=0,
-        )
-
-        if draw:
-            circuit_drawer(circuits[0], output="mpl", fold=150).savefig(
-                "img/circuit.png"
-            )
-            circuit_drawer(transpiled_circuits[0], output="mpl", fold=150).savefig(
-                "img/transpiled_circuit.png"
-            )
 
         # method = 'automatic', 'statevector', 'density_matrix', 'stabilizer', 'matrix_product_state', 'extended_stabilizer', 'unitary', 'superop', 'tensor_network'
         noise_model = NoiseModel.from_backend(backend)
@@ -223,14 +232,20 @@ def run_simulation(
         )
 
         list_count = []
-        for progress, transpiled_qc in enumerate(transpiled_circuits):
-            if progress % (ceil(len(transpiled_circuits) / 30)) == 0:
+        num_circuits = len(circuits)
+        for progress, transpiled_qc in zip(
+            range(num_circuits), circuit_generator(circuits, backend, custom_layout)
+        ):
+            if progress % (ceil(num_circuits / 30)) == 0:
                 print(
-                    f"{100*progress/len(transpiled_circuits):.2f}% completed: {progress} circuits run over {len(transpiled_circuits)}."
+                    f"{100*progress/num_circuits:.2f}% completed: {progress} circuits run over {num_circuits}."
                 )
+                # force garbage collection
+                gc.collect
             result = simulator.run(transpiled_qc, shots=1).result()
             counts = result.get_counts()
             list_count.append(counts)
+            del transpiled_qc
 
         print("100.00% Simulation completed.")
 
