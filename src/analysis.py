@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from scipy.stats import norm, ttest_ind, ks_2samp
+from scipy.stats import norm
 
 
 def update_data(data, counts):
@@ -274,8 +274,14 @@ def compute_quantities(fractions, errors):
     distance_to_surface = np.linalg.norm(observed - surface_point) / normalization
 
     # 4. Gaussian Overlap (Separability Test)
-    combined_variance = np.sum(errors**2)
-    overlap = norm.cdf(norm_diff / np.sqrt(combined_variance))
+    # exploit 2 gaussians symmetry, the first centered in 0 and the second centered in norm_diff, having the same variance
+    std_dev = np.sqrt(np.sum(errors**2))
+    intersection = norm_diff / 2
+    # (a-\mu)/\sigma
+    area_left = norm.cdf(-intersection / std_dev)  # intersection-norm_diff
+    area_right = 1 - norm.cdf(intersection / std_dev)
+
+    overlap = area_right + area_left
 
     return {
         "Norm of Expected Minus Observed Point": norm_diff,
