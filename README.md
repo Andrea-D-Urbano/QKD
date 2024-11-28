@@ -38,12 +38,12 @@ This repository contains Python scripts for simulating Quantum Key Distribution 
 
 - `/src`: Contains source python files.
 - `/data`: Contains raw and processed simulation data.
-- `/img`: Stores generated images and plots from the simulations.
+- `/img`: Stores generated images and plots.
 - `/config`: Houses the configuration file (`sim_config.yaml`) for customizing simulation parameters.
 
 ## Usage
 
-After setting up the environment and configurations, run `/src/main.py`. To generate the image of backend topology highlighting the "master chain" use the script `plot_master_chain.py`. To generate plots use `plot_results.py`.
+After setting up the environment and configurations, run `/src/main.py`. To generate the image of backend topology highlighting the "master chain" use the script `plot_master_chain.py`. To generate basic plots use `plot_results.py`. The plots used in the manuscript were generated using `plot_refined.py`.
 
 ## License
 
